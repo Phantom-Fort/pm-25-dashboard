@@ -2,8 +2,7 @@
 
 import { Sun, Moon, AirVent, Loader, ChevronDown, ArrowUpDown, MoreHorizontal } from "lucide-react";
 import { useTheme } from "@/lib/theme/ThemeContext";
-import { useState, useEffect, useMemo } from "react";
-import { cn } from "@/lib/utils";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { collection, addDoc, getDocs, query, where, orderBy, deleteDoc, doc } from "firebase/firestore";
@@ -59,7 +58,7 @@ const MapChartClient = dynamic(() => import("../components/MapChartClient"), {
   loading: () => <div className="text-center text-muted-foreground mt-4">Loading map...</div>,
 });
 
-interface FormData {
+interface PredictionInput {
   hole_diameter_mm: string;
   hole_depth_m: string;
   spacing_m: string;
@@ -96,7 +95,7 @@ interface DispersionData {
 interface HistoryEntry {
   id: string;
   timestamp: string;
-  input: FormData;
+  input: PredictionInput;
   prediction: number | null;
   dispersion: DispersionData[];
   uid: string | null;
@@ -110,7 +109,7 @@ export const storePrediction = async ({
   dispersion = [],
   uid,
 }: {
-  input: any;
+  input: PredictionInput;
   prediction: number;
   dispersion?: DispersionData[];
   uid?: string | null;
@@ -178,7 +177,7 @@ export default function DashboardPage() {
     SouthAfrica: ["Gauteng", "Western Cape", "KwaZulu-Natal"],
   };
 
-  const miningFacts = [
+  const miningFacts = useMemo(() => [
     "Blasting vibrations can cause structural damage if not properly controlled.",
     "Prolonged exposure to silica dust from quarrying can lead to silicosis, a serious lung disease.",
     "Using water sprays can reduce dust emissions by up to 80% during blasting.",
@@ -199,15 +198,15 @@ export default function DashboardPage() {
     "Proper stemming in blast holes ensures energy is directed downward, improving safety and efficiency.",
     "Quarries near populated areas must strictly follow vibration and dust emission regulations.",
     "Monitoring PM2.5 emissions helps quarries stay compliant with air quality standards.",
-  ];
+  ], []);
 
   const [visibleFacts, setVisibleFacts] = useState<string[]>([]);
-  const getRandomFacts = () => {
+  const getRandomFacts = useCallback(() => {
     const shuffled = [...miningFacts].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, 9);
-  };
+  }, [miningFacts]);
 
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState<PredictionInput>({
     hole_diameter_mm: "",
     hole_depth_m: "",
     spacing_m: "",
@@ -240,20 +239,14 @@ export default function DashboardPage() {
     wind_dir: number;
   } | null>(null);
 
-  const [weather, setWeather] = useState<WeatherData>({
-    temperature_c: 0,
-    wind_speed_m_s: 0,
-    wind_direction_deg: 0,
-    humidity_percent: 0,
-    moisture_percent: 0,
-  });
+  const [weather, setWeather] = useState<WeatherData>({});
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
 
-  const fetchHistory = async () => {
+  const fetchHistory = useCallback(async () => {
     if (!user) {
       setHistory(initialHistory);
       return;
@@ -268,7 +261,7 @@ export default function DashboardPage() {
       const snapshot = await getDocs(q);
       const docs = snapshot.docs.map((doc) => {
         const data = doc.data();
-        let parsedInput: FormData | null = null;
+        let parsedInput: PredictionInput | null = null;
         try {
           parsedInput = typeof data.input === "string" ? JSON.parse(data.input) : data.input;
           if (!parsedInput || typeof parsedInput !== "object") {
@@ -296,7 +289,7 @@ export default function DashboardPage() {
       setHistory(initialHistory);
       toast.error("Failed to load history. Please try again.");
     }
-  };
+  }, [user]);
 
   const columns = useMemo<ColumnDef<HistoryEntry>[]>(() => [
     {
@@ -362,80 +355,78 @@ export default function DashboardPage() {
         <div className="text-blue-800 dark:text-indigo-200">{row.original.input?.useApi ? "API" : "Manual"}</div>
       ),
     },
-    
-   {
-  id: "actions",
-  enableHiding: false,
-  cell: ({ row }) => {
-    const entry = row.original;
-    return (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            className="h-8 w-8 p-0 text-blue-800 dark:text-indigo-200 hover:bg-blue-50 dark:hover:bg-indigo-900/50 focus:outline-none"
-            onClick={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-            }}
-            onMouseDown={(e) => e.stopPropagation()}
-            onMouseOver={(e) => e.stopPropagation()}
-          >
-            <span className="sr-only">Open menu</span>
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent
-          align="end"
-          className="bg-white dark:bg-gray-800 text-blue-800 dark:text-indigo-200 border-blue-200 dark:border-indigo-700"
-          onCloseAutoFocus={(e) => e.preventDefault()}
-          onClick={(e) => e.stopPropagation()}
-          onMouseOver={(e) => e.stopPropagation()}
-          onMouseLeave={(e) => e.stopPropagation()}
-        >
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuItem
-            onSelect={(e) => {
-              e.preventDefault();
-              setSelectedEntry(entry);
-            }}
-            className="focus:bg-blue-100 dark:focus:bg-indigo-800/50 cursor-pointer"
-          >
-            View Details
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onSelect={(e) => {
-              e.preventDefault();
-              navigator.clipboard.writeText(entry.id);
-              toast.success("Entry ID copied to clipboard.");
-            }}
-            className="focus:bg-blue-100 dark:focus:bg-indigo-800/50 cursor-pointer"
-          >
-            Copy Entry ID
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            onSelect={async (e) => {
-              e.preventDefault();
-              try {
-                await deleteDoc(doc(db, "predictions", entry.id));
-                toast.success("Entry deleted successfully.");
-                fetchHistory();
-              } catch (err) {
-                console.error("Error deleting entry:", err);
-                toast.error("Failed to delete entry.");
-              }
-            }}
-            className="focus:bg-blue-100 dark:focus:bg-indigo-800/50 cursor-pointer"
-          >
-            Delete Entry
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    );
-  },
-}
-
+    {
+      id: "actions",
+      enableHiding: false,
+      cell: ({ row }) => {
+        const entry = row.original;
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                className="h-8 w-8 p-0 text-blue-800 dark:text-indigo-200 hover:bg-blue-50 dark:hover:bg-indigo-900/50 focus:outline-none"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                }}
+                onMouseDown={(e) => e.stopPropagation()}
+                onMouseOver={(e) => e.stopPropagation()}
+              >
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              className="bg-white dark:bg-gray-800 text-blue-800 dark:text-indigo-200 border-blue-200 dark:border-indigo-700"
+              onCloseAutoFocus={(e) => e.preventDefault()}
+              onClick={(e) => e.stopPropagation()}
+              onMouseOver={(e) => e.stopPropagation()}
+              onMouseLeave={(e) => e.stopPropagation()}
+            >
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem
+                onSelect={(e) => {
+                  e.preventDefault();
+                  setSelectedEntry(entry);
+                }}
+                className="focus:bg-blue-100 dark:focus:bg-indigo-800/50 cursor-pointer"
+              >
+                View Details
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onSelect={(e) => {
+                  e.preventDefault();
+                  navigator.clipboard.writeText(entry.id);
+                  toast.success("Entry ID copied to clipboard.");
+                }}
+                className="focus:bg-blue-100 dark:focus:bg-indigo-800/50 cursor-pointer"
+              >
+                Copy Entry ID
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onSelect={async (e) => {
+                  e.preventDefault();
+                  try {
+                    await deleteDoc(doc(db, "predictions", entry.id));
+                    toast.success("Entry deleted successfully.");
+                    fetchHistory();
+                  } catch (err) {
+                    console.error("Error deleting entry:", err);
+                    toast.error("Failed to delete entry.");
+                  }
+                }}
+                className="focus:bg-blue-100 dark:focus:bg-indigo-800/50 cursor-pointer"
+              >
+                Delete Entry
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
+    },
   ], [fetchHistory]);
 
   const table = useReactTable({
@@ -500,14 +491,14 @@ export default function DashboardPage() {
       setVisibleFacts(getRandomFacts());
     }, 10000);
     return () => clearInterval(interval);
-  }, []);
+  }, [getRandomFacts]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSelectChange = (name: keyof FormData) => (value: string) => {
+  const handleSelectChange = (name: keyof PredictionInput) => (value: string) => {
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -551,9 +542,7 @@ export default function DashboardPage() {
       return;
     }
 
-    let timeoutId: NodeJS.Timeout;
-
-    timeoutId = setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       setLoadingPrediction(false);
       setError("Prediction timed out after 10 seconds.");
       toast.error("Prediction timed out.");
@@ -620,23 +609,21 @@ export default function DashboardPage() {
   const handleDispersionRun = async () => {
     if (!lastDispersionInput) return;
 
-    let timeoutId: NodeJS.Timeout;
+    const timeoutId = setTimeout(() => {
+      setLoadingDispersion(false);
+      setError("Dispersion timed out after 10 seconds.");
+      toast.error("Dispersion timed out.");
+    }, 10000);
 
     try {
       setError(null);
       setLoadingDispersion(true);
 
-      timeoutId = setTimeout(() => {
-        setLoadingDispersion(false);
-        setError("Dispersion timed out after 10 seconds.");
-        toast.error("Dispersion timed out.");
-      }, 10000);
-
-    const response = await fetch("/api/aermod", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(lastDispersionInput),
-    });
+      const response = await fetch("/api/aermod", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(lastDispersionInput),
+      });
 
       if (!response.ok) throw new Error(`AERMOD API error: ${response.status}`);
       const result = await response.json();
@@ -675,7 +662,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     fetchHistory();
-  }, [user]);
+  }, [fetchHistory, user]);
 
   useEffect(() => {
     if (loading) return;
@@ -685,7 +672,7 @@ export default function DashboardPage() {
     } else if (!user.displayName) {
       router.push("/profile");
     }
-  }, [user, loading]);
+  }, [user, loading, router]);
 
   if (loading || !user) return <FullScreenLoader />;
 
@@ -779,7 +766,7 @@ export default function DashboardPage() {
                   <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-md border border-blue-200 dark:border-indigo-700">
                     <h3 className="text-2xl flex items-center font-semibold text-blue-800 dark:text-indigo-200 mb-2">🛠️ How to Use</h3>
                     <p className="text-md text-blue-600 dark:text-indigo-300">
-                      Navigate to the "Predict" tab, enter blasting data with an option to fetch weather data, and submit for results. You’ll see PM2.5 predictions and spatial dispersion.
+                      Navigate to the "Predict" tab, enter blasting data with an option to fetch weather data, and submit for results. You'll see PM2.5 predictions and spatial dispersion.
                     </p>
                   </div>
                   <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-md border border-blue-200 dark:border-indigo-700">

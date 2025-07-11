@@ -41,9 +41,10 @@ export default function ProfilePage() {
         description: "Your profile has been successfully updated.",
       });
       router.push("/dashboard");
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const error = err as { message?: string };
       toast.error("Failed to update profile", {
-        description: err.message || "Something went wrong.",
+        description: error.message || "Something went wrong.",
       });
     } finally {
       setIsSaving(false);
@@ -55,7 +56,7 @@ export default function ProfilePage() {
     if (!user) {
       router.replace("/login");
     }
-  }, [user, loading]);
+  }, [user, loading, router]);
 
   // Generate initials for avatar
   const getInitials = (name: string) => {
@@ -68,7 +69,7 @@ export default function ProfilePage() {
 
   return (
     <AuthenticatedLayout>
-       <div className="w-full bg-gradient-to-r from-blue-500 to-indigo-500 dark:from-blue-600 dark:to-indigo-600 text-white dark:text-white p-6 rounded-2xl shadow-md">
+      <div className="w-full bg-gradient-to-r from-blue-500 to-indigo-500 dark:from-blue-600 dark:to-indigo-600 text-white dark:text-white p-6 rounded-2xl shadow-md">
         <h2 className="text-4xl font-bold mb-2">Welcome to Your PM2.5 Prediction Profile</h2>
         <p className="text-md">
           Manage your user account.

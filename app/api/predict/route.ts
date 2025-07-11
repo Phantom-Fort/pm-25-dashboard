@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { execSync } from "child_process";
-import { writeFileSync, readFileSync, unlinkSync } from "fs";
+import { writeFileSync, unlinkSync } from "fs";
 import { join } from "path";
 
 export async function POST(request: Request) {

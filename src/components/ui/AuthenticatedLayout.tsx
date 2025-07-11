@@ -44,9 +44,7 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
       await signOut(auth);
       toast.success("Signed out successfully.");
       router.push("/login");
-    } catch (error) {
-      toast.error("Failed to sign out. Please try again.");
-    }
+    } finally {}
   };
 
   const toggleSidebar = () => {

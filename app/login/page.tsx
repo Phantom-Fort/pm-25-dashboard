@@ -62,9 +62,10 @@ export default function LoginPage() {
           router.push("/dashboard");
         }
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("auth error:", err);
-      if (err.code === "auth/user-not-found") {
+      const error = err as { code?: string; message?: string };
+      if (error.code === "auth/user-not-found") {
         toast.warning("Account not found", {
           description: "Would you like to create an account?",
           action: {
@@ -72,17 +73,17 @@ export default function LoginPage() {
             onClick: () => setIsRegistering(true),
           },
         });
-      } else if (err.code === "auth/wrong-password") {
+      } else if (error.code === "auth/wrong-password") {
         toast.error("Incorrect password", {
           description: "Please double-check your password and try again.",
         });
-      } else if (err.code === "auth/invalid-email") {
+      } else if (error.code === "auth/invalid-email") {
         toast.error("Invalid email address", {
           description: "Please enter a valid email format.",
         });
       } else {
         toast.error("Login failed", {
-          description: err.message || "Something went wrong.",
+          description: error.message || "Something went wrong.",
         });
       }
     } finally {
@@ -100,12 +101,11 @@ export default function LoginPage() {
       } else {
         router.push("/dashboard");
       }
-    } catch (err: any) {
-      toast.error(err.message || "Google login failed");
+    } catch (err: unknown) {
+      const error = err as { message?: string };
+      toast.error(error.message || "Google login failed");
     }
   };
-
-  console.log("Logging in with", email, password);
 
   useEffect(() => {
     if (loading) return;
@@ -116,124 +116,124 @@ export default function LoginPage() {
         router.replace("/dashboard");
       }
     }
-  }, [user, loading]);
+  }, [user, loading, router]);
 
- return (
-  <PageWrapper>
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <Card className="flex flex-col lg:flex-row w-full max-w-4xl shadow-lg rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 dark:from-blue-600 dark:to-indigo-600 text-white dark:text-white">
-        {/* Left side: Branding (visible on larger screens) */}
-        <div className="hidden lg:flex flex-col justify-center items-center bg-primary text-primary-foreground w-1/2 p-8">
-          <h2 className="text-3xl text-center font-bold mb-4">Welcome to the PM<sub className="text-lg">2.5</sub> Dashboard</h2>
-          <br />
-          <p className="text-sm text-primary-foreground/80 text-center">
-            Monitor, Predict, and Manage air quality using real-time data analytics. <br />
+  return (
+    <PageWrapper>
+      <div className="min-h-screen flex items-center justify-center bg-background px-4">
+        <Card className="flex flex-col lg:flex-row w-full max-w-4xl shadow-lg rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 dark:from-blue-600 dark:to-indigo-600 text-white dark:text-white">
+          {/* Left side: Branding (visible on larger screens) */}
+          <div className="hidden lg:flex flex-col justify-center items-center bg-primary text-primary-foreground w-1/2 p-8">
+            <h2 className="text-3xl text-center font-bold mb-4">Welcome to the PM<sub className="text-lg">2.5</sub> Dashboard</h2>
             <br />
-            Log in to access advanced tools and insights.
-          </p>
-        </div>
+            <p className="text-sm text-primary-foreground/80 text-center">
+              Monitor, Predict, and Manage air quality using real-time data analytics. <br />
+              <br />
+              Log in to access advanced tools and insights.
+            </p>
+          </div>
 
-        {/* Right side: Login/Register Form */}
-        <div className="w-full lg:w-1/2 p-6">
-          <CardHeader className="space-y-2 p-0">
-            <div className="flex justify-between items-center">
-              <CardTitle className="text-2xl font-bold text-foreground">
-                {isRegistering ? "Create Account" : "Login"}
-              </CardTitle>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={toggleTheme}
-                className="text-foreground hover:bg-muted"
-                aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
-              >
-                {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-              </Button>
-            </div>
-            <CardDescription className="text-muted-foreground">
-              {isRegistering
-                ? "Register to access your dashboard."
-                : "Sign in to your account."}
-            </CardDescription>
-            <Button
-              variant="link"
-              onClick={() => setIsRegistering(!isRegistering)}
-              className="text-primary hover:text-primary/80 p-0"
-            >
-              {isRegistering ? "Already have an account?" : "Create a new account"}
-            </Button>
-          </CardHeader>
-
-          <CardContent className="p-0 mt-4">
-            <form onSubmit={handleEmailAuth} className="flex flex-col gap-6">
-              <div className="grid gap-2">
-                <Label htmlFor="email" className="text-foreground">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="you@example.com"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="bg-background border-border text-foreground focus:ring focus:ring-ring"
-                />
+          {/* Right side: Login/Register Form */}
+          <div className="w-full lg:w-1/2 p-6">
+            <CardHeader className="space-y-2 p-0">
+              <div className="flex justify-between items-center">
+                <CardTitle className="text-2xl font-bold text-foreground">
+                  {isRegistering ? "Create Account" : "Login"}
+                </CardTitle>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={toggleTheme}
+                  className="text-foreground hover:bg-muted"
+                  aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+                >
+                  {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                </Button>
               </div>
+              <CardDescription className="text-muted-foreground">
+                {isRegistering
+                  ? "Register to access your dashboard."
+                  : "Sign in to your account."}
+              </CardDescription>
+              <Button
+                variant="link"
+                onClick={() => setIsRegistering(!isRegistering)}
+                className="text-primary hover:text-primary/80 p-0"
+              >
+                {isRegistering ? "Already have an account?" : "Create a new account"}
+              </Button>
+            </CardHeader>
 
-              {isRegistering && (
+            <CardContent className="p-0 mt-4">
+              <form onSubmit={handleEmailAuth} className="flex flex-col gap-6">
                 <div className="grid gap-2">
-                  <Label htmlFor="username" className="text-foreground">Username</Label>
+                  <Label htmlFor="email" className="text-foreground">Email</Label>
                   <Input
-                    id="username"
-                    placeholder="your_username"
+                    id="email"
+                    type="email"
+                    placeholder="you@example.com"
                     required
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     className="bg-background border-border text-foreground focus:ring focus:ring-ring"
                   />
                 </div>
-              )}
 
-              <div className="grid gap-2">
-                <Label htmlFor="password" className="text-foreground">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="bg-background border-border text-foreground focus:ring focus:ring-ring"
-                />
-              </div>
+                {isRegistering && (
+                  <div className="grid gap-2">
+                    <Label htmlFor="username" className="text-foreground">Username</Label>
+                    <Input
+                      id="username"
+                      placeholder="your_username"
+                      required
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      className="bg-background border-border text-foreground focus:ring focus:ring-ring"
+                    />
+                  </div>
+                )}
 
+                <div className="grid gap-2">
+                  <Label htmlFor="password" className="text-foreground">Password</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="bg-background border-border text-foreground focus:ring focus:ring-ring"
+                  />
+                </div>
+
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-colors"
+                >
+                  {loading
+                    ? isRegistering
+                      ? "Creating..."
+                      : "Logging in..."
+                    : isRegistering
+                      ? "Create Account"
+                      : "Login"}
+                </Button>
+              </form>
+            </CardContent>
+
+            <CardFooter className="flex-col gap-2 p-0 mt-6">
               <Button
-                type="submit"
+                onClick={handleGoogleLogin}
+                variant="outline"
                 disabled={loading}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-colors"
+                className="w-full bg-background border-border text-foreground hover:bg-muted"
               >
-                {loading
-                  ? isRegistering
-                    ? "Creating..."
-                    : "Logging in..."
-                  : isRegistering
-                    ? "Create Account"
-                    : "Login"}
+                Continue with Google
               </Button>
-            </form>
-          </CardContent>
-
-          <CardFooter className="flex-col gap-2 p-0 mt-6">
-            <Button
-              onClick={handleGoogleLogin}
-              variant="outline"
-              disabled={loading}
-              className="w-full bg-background border-border text-foreground hover:bg-muted"
-            >
-              Continue with Google
-            </Button>
-          </CardFooter>
-        </div>
-      </Card>
-    </div>
-  </PageWrapper>
-);
+            </CardFooter>
+          </div>
+        </Card>
+      </div>
+    </PageWrapper>
+  );
 }

@@ -1,4 +1,3 @@
-// app/page.tsx
 "use client";
 
 import { useEffect } from "react";
@@ -19,7 +18,7 @@ export default function HomeRedirectPage() {
     } else {
       router.replace("/dashboard");
     }
-  }, [user, loading]);
+  }, [user, loading, router]);
 
   return (
     <div className="p-6 text-center text-lg font-semibold">
