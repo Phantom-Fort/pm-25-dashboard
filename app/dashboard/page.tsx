@@ -582,7 +582,7 @@ export default function DashboardPage() {
     };
 
     try {
-      const response = await fetch("http://localhost:5000/predict", {
+      const response = await fetch("/api/predict", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -632,11 +632,11 @@ export default function DashboardPage() {
         toast.error("Dispersion timed out.");
       }, 10000);
 
-      const response = await fetch("http://localhost:5000/aermod", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(lastDispersionInput),
-      });
+    const response = await fetch("/api/aermod", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(lastDispersionInput),
+    });
 
       if (!response.ok) throw new Error(`AERMOD API error: ${response.status}`);
       const result = await response.json();
