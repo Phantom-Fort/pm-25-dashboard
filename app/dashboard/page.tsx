@@ -5,10 +5,11 @@ import { useTheme } from "@/lib/theme/ThemeContext";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { collection, addDoc, getDocs, query, where, orderBy, deleteDoc, doc } from "firebase/firestore";
+import { collection, getDocs, query, where, orderBy, deleteDoc, doc } from "firebase/firestore";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
+import { storePrediction, storeDispersion } from "@/lib/firestore";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -103,59 +104,6 @@ interface HistoryEntry {
 
 const initialHistory: HistoryEntry[] = [];
 
-export const storePrediction = async ({
-  input,
-  prediction,
-  dispersion = [],
-  uid,
-}: {
-  input: PredictionInput;
-  prediction: number;
-  dispersion?: DispersionData[];
-  uid?: string | null;
-}) => {
-  try {
-    await addDoc(collection(db, "predictions"), {
-      timestamp: new Date().toISOString(),
-      input,
-      prediction,
-      dispersion,
-      uid: uid || null,
-    });
-    console.log("✅ Prediction stored in Firestore");
-  } catch (error) {
-    console.error("❌ Error storing prediction:", error);
-    toast.error("Failed to store prediction.");
-  }
-};
-
-export const storeDispersion = async ({
-  dispersion,
-  metadata,
-  uid,
-}: {
-  dispersion: DispersionData[];
-  metadata?: {
-    pm25: number;
-    wind_speed: number;
-    wind_dir: number;
-  };
-  uid?: string | null;
-}) => {
-  try {
-    await addDoc(collection(db, "dispersion"), {
-      timestamp: new Date().toISOString(),
-      dispersion,
-      metadata,
-      uid: uid || null,
-    });
-    console.log("✅ Dispersion data stored in Firestore");
-  } catch (error) {
-    console.error("❌ Error storing dispersion data:", error);
-    toast.error("Failed to store dispersion data.");
-  }
-};
-
 const regionalStandards = [
   { jurisdiction: "Nigeria (NESREA)", annual: 40, daily: 60 },
   { jurisdiction: "South Africa", annual: 20, daily: 40 },
@@ -198,6 +146,7 @@ export default function DashboardPage() {
     "Proper stemming in blast holes ensures energy is directed downward, improving safety and efficiency.",
     "Quarries near populated areas must strictly follow vibration and dust emission regulations.",
     "Monitoring PM2.5 emissions helps quarries stay compliant with air quality standards.",
+    "Blasting isn\'t safe without proper training and equipment.", // Escaped single quote
   ], []);
 
   const [visibleFacts, setVisibleFacts] = useState<string[]>([]);
@@ -766,7 +715,7 @@ export default function DashboardPage() {
                   <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-md border border-blue-200 dark:border-indigo-700">
                     <h3 className="text-2xl flex items-center font-semibold text-blue-800 dark:text-indigo-200 mb-2">🛠️ How to Use</h3>
                     <p className="text-md text-blue-600 dark:text-indigo-300">
-                      Navigate to the "Predict" tab, enter blasting data with an option to fetch weather data, and submit for results. You'll see PM2.5 predictions and spatial dispersion.
+                      Navigate to the Predict<b/> tab, enter blasting data with an option to fetch weather data, and submit for results. You will see PM2.5 predictions and spatial dispersion.
                     </p>
                   </div>
                   <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-md border border-blue-200 dark:border-indigo-700">
@@ -797,7 +746,7 @@ export default function DashboardPage() {
                   <ul className="list-disc list-inside text-blue-600 dark:text-indigo-300 space-y-2 text-lg">
                     {visibleFacts.map((fact, idx) => (
                       <li key={idx} className="transition-opacity duration-1000 ease-in-out">
-                        {fact}
+                        {fact.replace(/"/g, '&quot;').replace(/'/g, '&apos;')}
                       </li>
                     ))}
                   </ul>
