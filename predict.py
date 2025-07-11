@@ -13,7 +13,7 @@ model_path = os.path.join(base_dir, "rf_model.pkl")
 try:
     model = joblib.load(model_path)
 except FileNotFoundError:
-    print(f"Error: Model file not found at {model_path}")
+    print(json.dumps({"error": f"Model file not found at {model_path}"}))
     sys.exit(1)
 
 # Load min-max scaler parameters
@@ -22,7 +22,7 @@ try:
     with open(scaler_params_path, "r") as f:
         scaler_params = json.load(f)
 except FileNotFoundError:
-    print(f"Error: Scaler parameters file not found at {scaler_params_path}")
+    print(json.dumps({"error": f"Scaler parameters file not found at {scaler_params_path}"}))
     sys.exit(1)
 
 # Load expected feature names
@@ -31,7 +31,7 @@ try:
     with open(feature_names_path, "r") as f:
         feature_names = json.load(f)
 except FileNotFoundError:
-    print(f"Error: Feature names file not found at {feature_names_path}")
+    print(json.dumps({"error": f"Feature names file not found at {feature_names_path}"}))
     sys.exit(1)
 
 # Define one-hot encoded features (not scaled)
@@ -47,15 +47,20 @@ one_hot_features = [
 ]
 
 def main():
-    # Read input from command line
+    # Read input from file
     if len(sys.argv) < 2:
-        print(json.dumps({"error": "No data provided"}))
+        print(json.dumps({"error": "No input file provided"}))
         sys.exit(1)
 
+    input_file = sys.argv[1]
     try:
-        data = json.loads(sys.argv[1])
-    except json.JSONDecodeError:
-        print(json.dumps({"error": "Invalid JSON data"}))
+        with open(input_file, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except json.JSONDecodeError as e:
+        print(json.dumps({"error": f"Invalid JSON data in input file: {str(e)}"}))
+        sys.exit(1)
+    except FileNotFoundError:
+        print(json.dumps({"error": f"Input file not found: {input_file}"}))
         sys.exit(1)
 
     # Validate input

@@ -121,12 +121,14 @@ export default function LoginPage() {
  return (
   <PageWrapper>
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <Card className="flex flex-col lg:flex-row w-full max-w-4xl shadow-lg rounded-xl overflow-hidden bg-background border-border">
+      <Card className="flex flex-col lg:flex-row w-full max-w-4xl shadow-lg rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 dark:from-blue-600 dark:to-indigo-600 text-white dark:text-white">
         {/* Left side: Branding (visible on larger screens) */}
         <div className="hidden lg:flex flex-col justify-center items-center bg-primary text-primary-foreground w-1/2 p-8">
-          <h2 className="text-3xl font-bold mb-4">Welcome to the PM<sub className="text-lg">2.5</sub> Dashboard</h2>
+          <h2 className="text-3xl text-center font-bold mb-4">Welcome to the PM<sub className="text-lg">2.5</sub> Dashboard</h2>
+          <br />
           <p className="text-sm text-primary-foreground/80 text-center">
             Monitor, Predict, and Manage air quality using real-time data analytics. <br />
+            <br />
             Log in to access advanced tools and insights.
           </p>
         </div>

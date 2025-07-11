@@ -41,15 +41,20 @@ def calculate_dispersion(
     return concentration * 1000
 
 def main():
-    # Read input from command line
+    # Read input from file
     if len(sys.argv) < 2:
-        print(json.dumps({"error": "No data provided"}))
+        print(json.dumps({"error": "No input file provided"}))
         sys.exit(1)
 
+    input_file = sys.argv[1]
     try:
-        data = json.loads(sys.argv[1])
-    except json.JSONDecodeError:
-        print(json.dumps({"error": "Invalid JSON data"}))
+        with open(input_file, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except json.JSONDecodeError as e:
+        print(json.dumps({"error": f"Invalid JSON data in input file: {str(e)}"}))
+        sys.exit(1)
+    except FileNotFoundError:
+        print(json.dumps({"error": f"Input file not found: {input_file}"}))
         sys.exit(1)
 
     pm25 = data.get("pm25", 0.0)
@@ -58,15 +63,15 @@ def main():
     base_lat = 6.9149
     base_lon = 5.1478
 
-    n_points = 10
-    distances = np.linspace(100, 10000, n_points)
-    angles = np.linspace(-45, 45, n_points) * math.pi / 180
-    lats = base_lat + (distances * np.sin(angles)) / 111000
-    lons = base_lon + (distances * np.cos(angles)) / (
-        111000 / math.cos(math.radians(base_lat))
-    )
-
     try:
+        n_points = 10
+        distances = np.linspace(100, 10000, n_points)
+        angles = np.linspace(-45, 45, n_points) * math.pi / 180
+        lats = base_lat + (distances * np.sin(angles)) / 111000
+        lons = base_lon + (distances * np.cos(angles)) / (
+            111000 / math.cos(math.radians(base_lat))
+        )
+
         concentrations = calculate_dispersion(pm25, wind_speed, wind_dir, distances)
         dispersion = [
             {
@@ -84,4 +89,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    

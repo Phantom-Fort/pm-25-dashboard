@@ -107,11 +107,11 @@ export default function MapChartClient({
   const areaChartConfig = {
     standard: {
       label: `${comparisonType === 'daily' ? 'Daily' : 'Annual'} Limit`,
-      color: 'var(--color-primary)', // Theme primary color (e.g., blue)
+      color: 'var(--chart-1)', // Use chart-1 from global.css
     },
     prediction: {
       label: 'Prediction',
-      color: 'var(--color-secondary)', // Theme secondary color (e.g., green)
+      color: 'var(--chart-2)', // Use chart-2 from global.css
     },
   } satisfies ChartConfig;
 
@@ -148,7 +148,7 @@ export default function MapChartClient({
   const radarChartConfig = {
     pm25: {
       label: 'PM2.5 (µg/m³)',
-      color: 'var(--color-accent)', // Theme accent color (e.g., yellow)
+      color: 'var(--chart-3)', // Use chart-3 from global.css
     },
   } satisfies ChartConfig;
 
@@ -163,15 +163,15 @@ export default function MapChartClient({
   const lineChartConfig = {
     dailyLimit: {
       label: 'Daily Limit',
-      color: 'var(--color-primary)', // Theme primary color
+      color: 'var(--chart-1)', // Use chart-1 from global.css
     },
     annualLimit: {
       label: 'Annual Limit',
-      color: 'var(--color-accent)', // Theme accent color
+      color: 'var(--chart-2)', // Use chart-2 from global.css
     },
     prediction: {
       label: 'Predicted PM2.5',
-      color: 'var(--color-secondary)', // Theme secondary color
+      color: 'var(--chart-3)', // Use chart-3 from global.css
     },
   } satisfies ChartConfig;
 
@@ -200,7 +200,7 @@ export default function MapChartClient({
   const barChartConfig = {
     pm25: {
       label: 'PM2.5 (µg/m³)',
-      color: 'var(--color-primary)', // Theme primary color
+      color: 'var(--chart-4)', // Use chart-4 from global.css
     },
   } satisfies ChartConfig;
 
@@ -282,21 +282,21 @@ export default function MapChartClient({
                   <Line
                     dataKey="dailyLimit"
                     type="monotone"
-                    stroke="var(--color-primary)"
+                    stroke="var(--chart-1)"
                     strokeWidth={2}
                     dot={false}
                   />
                   <Line
                     dataKey="annualLimit"
                     type="monotone"
-                    stroke="var(--color-accent)"
+                    stroke="var(--chart-2)"
                     strokeWidth={2}
                     dot={false}
                   />
                   <Line
                     dataKey="prediction"
                     type="monotone"
-                    stroke="var(--color-secondary)"
+                    stroke="var(--chart-3)"
                     strokeWidth={2}
                     dot={false}
                   />
@@ -317,12 +317,12 @@ export default function MapChartClient({
                 <AreaChart data={areaChartData}>
                   <defs>
                     <linearGradient id="fillStandard" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.8} />
-                      <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0.1} />
+                      <stop offset="5%" stopColor="var(--chart-1)" stopOpacity={0.8} />
+                      <stop offset="95%" stopColor="var(--chart-1)" stopOpacity={0.1} />
                     </linearGradient>
                     <linearGradient id="fillPrediction" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="var(--color-secondary)" stopOpacity={0.8} />
-                      <stop offset="95%" stopColor="var(--color-secondary)" stopOpacity={0.1} />
+                      <stop offset="5%" stopColor="var(--chart-2)" stopOpacity={0.8} />
+                      <stop offset="95%" stopColor="var(--chart-2)" stopOpacity={0.1} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid vertical={false} stroke="var(--color-muted)" />
@@ -342,14 +342,14 @@ export default function MapChartClient({
                     dataKey="standard"
                     type="monotone"
                     fill="url(#fillStandard)"
-                    stroke="var(--color-primary)"
+                    stroke="var(--chart-1)"
                     stackId="a"
                   />
                   <Area
                     dataKey="prediction"
                     type="monotone"
                     fill="url(#fillPrediction)"
-                    stroke="var(--color-secondary)"
+                    stroke="var(--chart-2)"
                     stackId="a"
                   />
                   <ChartLegend content={<ChartLegendContent className="text-foreground" />} />
@@ -395,9 +395,9 @@ export default function MapChartClient({
                       <PolarGrid stroke="var(--color-muted)" />
                       <Radar
                         dataKey="pm25"
-                        fill="var(--color-accent)"
+                        fill="var(--chart-3)"
                         fillOpacity={0.6}
-                        stroke="var(--color-accent)"
+                        stroke="var(--chart-3)"
                       />
                     </RadarChart>
                   </ChartContainer>
@@ -434,7 +434,7 @@ export default function MapChartClient({
                         cursor={false}
                         content={<ChartTooltipContent hideLabel className="bg-background text-foreground border-border" />}
                       />
-                      <Bar dataKey="pm25" fill="var(--color-primary)" radius={8} />
+                      <Bar dataKey="pm25" fill="var(--chart-4)" radius={8} />
                     </BarChart>
                   </ChartContainer>
                 </CardContent>
