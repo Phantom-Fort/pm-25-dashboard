@@ -703,6 +703,11 @@ export default function DashboardPage() {
                   <p className="text-md">
                     Your companion for predicting and analyzing quarry PM2.5 emissions using environmental data and smart modeling.
                   </p>
+                  <br />
+                  <br />
+                  <p className="text-md">
+                  Olotu Opeyemi Masters Thesis Project...                  
+                    </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

@@ -22,7 +22,7 @@ export default function HomeRedirectPage() {
 
   return (
     <div className="p-6 text-center text-lg font-semibold">
-      Redirecting...
+      Olotu Opeyemi Master Thesis Project. M.ENG FUTA...
     </div>
   );
 }

@@ -74,6 +74,11 @@ export default function ProfilePage() {
         <p className="text-md">
           Manage your user account.
         </p>
+        <br />
+        <br />
+        <p className="text-md">
+          Olotu Opeyemi Masters Thesis Project...                  
+          </p>
       </div>
 
       <div className="flex items-center justify-center min-h-screen bg-background p-4">
