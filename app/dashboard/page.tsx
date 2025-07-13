@@ -520,11 +520,12 @@ export default function DashboardPage() {
     };
 
     try {
-      const response = await fetch("/api/predict", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
+
+    const response = await fetch("https://pm25-predictor.onrender.com/predict", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ features: data }),
+    });
 
       if (!response.ok) throw new Error(`Prediction API error: ${response.status}`);
       const result = await response.json();
