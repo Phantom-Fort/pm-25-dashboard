@@ -120,9 +120,9 @@ export default function DashboardPage() {
   const [selectedEntry, setSelectedEntry] = useState<HistoryEntry | null>(null);
 
   const countries = {
-    Nigeria: ["Ondo", "Lagos", "Abuja", "Kaduna", "Ilorin"],
+    Nigeria: ["Ondo", "Lagos", "Abuja", "Kaduna", "Ilorin", "Kano", "Ogun", "Osun", "Oyo", "Ekiti", "Edo", "Delta", "Rivers", "Imo", "Anambra", "Enugu", "Ebonyi", "Cross River", "Akwa Ibom", "Bayelsa"],
     Ghana: ["Accra", "Kumasi", "Tamale"],
-    SouthAfrica: ["Gauteng", "Western Cape", "KwaZulu-Natal"],
+    SouthAfrica: ["Gauteng", "Western Cape", "KwaZulu-Natal", "Johannesburg", "Cape Town", "Durban", "Pretoria", "Bloemfontein"],
   };
 
   const miningFacts = useMemo(() => [
