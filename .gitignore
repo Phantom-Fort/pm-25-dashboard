@@ -19,7 +19,7 @@
 
 # production
 /build
-venv.tf
+/venv.tf/
 
 # misc
 .DS_Store
