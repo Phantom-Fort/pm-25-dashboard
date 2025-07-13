@@ -120,7 +120,7 @@ export default function DashboardPage() {
   const [selectedEntry, setSelectedEntry] = useState<HistoryEntry | null>(null);
 
   const countries = {
-    Nigeria: ["Ondo", "Lagos", "Abuja", "Kaduna"],
+    Nigeria: ["Ondo", "Lagos", "Abuja", "Kaduna", "Ilorin"],
     Ghana: ["Accra", "Kumasi", "Tamale"],
     SouthAfrica: ["Gauteng", "Western Cape", "KwaZulu-Natal"],
   };
