@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 function linspace(start: number, end: number, num: number): number[] {
-  const arr = [];
+  const arr: number[] = [];
   const step = (end - start) / (num - 1);
   for (let i = 0; i < num; i++) arr.push(start + i * step);
   return arr;
@@ -77,8 +77,8 @@ export async function POST(request: Request) {
       .filter((point) => point.pm25 > 0.1 * maxConc); // filter weak points
 
     return NextResponse.json({ dispersion }, { status: 200 });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Dispersion error:", error);
-    return NextResponse.json({ error: `Dispersion failed: ${error.message || "Unknown error"}` }, { status: 500 });
+    return NextResponse.json({ error: `Dispersion failed: ${error || "Unknown error"}` }, { status: 500 });
   }
 }
