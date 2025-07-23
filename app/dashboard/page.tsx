@@ -105,7 +105,7 @@ interface HistoryEntry {
 const initialHistory: HistoryEntry[] = [];
 
 const regionalStandards = [
-  { jurisdiction: "Nigeria (NESREA)", annual: 40, daily: 60 },
+  { jurisdiction: "Nigeria (NESREA)", annual: 25, daily: 50 },
   { jurisdiction: "South Africa", annual: 20, daily: 40 },
   { jurisdiction: "WHO (2021)", annual: 5, daily: 15 },
   { jurisdiction: "USA (EPA)", annual: 12, daily: 35 },
